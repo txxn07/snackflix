@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>SnackFlix TianTiwi</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #F5C451;
+      --primary-dark: #E6B03D;
+      --surface: #1E2430;
+      --surface-2: #2A3140;
+      --text: #F9FAFB;
+      --text-soft: #AAB2C0;
+      --success: #22C55E;
+      --danger: #EF4444;
+      --bg: #141a24;
+      --netflix-red: #E50914;
+      --radius-card: 20px;
+      --radius-btn-lg: 16px;
+      --radius-btn-sm: 12px;
+      --radius-chip: 999px;
+      --radius-popup: 24px;
+      --shadow-sm: 0 2px 8px rgba(0,0,0,.18);
+      --shadow-md: 0 4px 12px rgba(0,0,0,.15);
+      --safe-bottom: env(safe-area-inset-bottom, 14px);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family:'Poppins',sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      min-height:100vh;
+      padding-bottom:100px;
+      -webkit-tap-highlight-color:transparent;
+      user-select:none;
+      overflow-x:hidden;
+    }
+
+    .header {
+      position:sticky;top:0;z-index:100;
+      background:rgba(20,26,36,.88);
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
+      border-bottom:1px solid rgba(255,255,255,.06);
+      padding:14px 16px;
+    }
+    .header-inner { display:flex;align-items:center;justify-content:center;gap:8px; }
+    .header-icon { width:24px;height:24px;object-fit:contain; }
+    .header h1 { font-size:1.1rem;font-weight:700;color:var(--text);letter-spacing:-.3px; }
+    .header h1 span { color:var(--primary); }
+
+    .screen {
+      margin:12px;padding:14px 16px;
+      border-radius:var(--radius-card);
+      background:var(--surface);
+      border:1px solid rgba(255,255,255,.06);
+      text-align:center;
+      box-shadow:var(--shadow-sm);
+    }
+    .screen-text {
+      font-weight:700;font-size:.8rem;color:var(--primary);
+      letter-spacing:1px;
+      display:flex;align-items:center;justify-content:center;gap:8px;
+    }
+    .screen-dot {
+      width:6px;height:6px;border-radius:50%;
+      background:var(--success);
+      animation:pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.3;} }
+
+    /* NOW PLAYING SECTION - SIMETRIS */
+    .now-playing {
+      margin: 12px;
+      background: linear-gradient(135deg, var(--surface), var(--surface-2));
+      border-radius: var(--radius-card);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.08);
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .now-playing:active {
+      transform: scale(0.98);
+    }
+    .now-playing-inner {
+      display: flex;
+      gap: 16px;
+      padding: 16px;
+      align-items: center;
+    }
+    .now-playing-cover {
+      width: 85px;
+      height: 120px;
+      border-radius: 12px;
+      object-fit: cover;
+      box-shadow: var(--shadow-md);
+      background: var(--bg);
+      flex-shrink: 0;
+    }
+    .now-playing-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .np-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: var(--primary);
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .np-label img {
+      width: 14px;
+      height: 14px;
+    }
+    .np-title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.3;
+    }
+    .np-meta {
+      font-size: 0.65rem;
+      color: var(--text-soft);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .np-meta span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .np-meta img {
+      width: 12px;
+      height: 12px;
+      opacity: 0.7;
+    }
+    .np-time {
+      font-size: 0.6rem;
+      color: var(--text-soft);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .np-time img {
+      width: 12px;
+      height: 12px;
+    }
+
+    .tabs {
+      display:flex;gap:6px;margin:10px 12px;padding:4px;
+      background:rgba(255,255,255,.03);
+      border-radius:var(--radius-chip);
+      position:sticky;top:68px;z-index:50;
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+    }
+    .tab {
+      flex:1;padding:10px 6px;border-radius:var(--radius-chip);
+      font-weight:600;font-size:.78rem;text-align:center;cursor:pointer;
+      color:var(--text-soft);transition:all .25s ease;
+      display:flex;align-items:center;justify-content:center;gap:4px;
+      white-space:nowrap;border:1.5px solid transparent;
+    }
+    .tab.on {
+      background:var(--primary);color:#111827;font-weight:700;
+      border-color:var(--primary);box-shadow:var(--shadow-sm);
+    }
+    .tab-icon { width:18px;height:18px;object-fit:contain; }
+    .tab.on .tab-icon { filter:brightness(0); }
+    .content { padding:0 12px; }
+    .menu-section { margin-bottom:14px; }
+    .menu-header {
+      display:flex;align-items:center;gap:10px;margin-bottom:8px;padding:0 4px;
+    }
+    .menu-header img {
+      width:40px;height:40px;padding:8px;
+      border-radius:var(--radius-btn-sm);background:var(--surface-2);
+    }
+    .menu-header-info h3 { font-size:.9rem;font-weight:700;color:var(--text); }
+    .menu-header-info span { font-size:.7rem;color:var(--primary);font-weight:500; }
+    .item-card {
+      background:var(--surface);border-radius:var(--radius-card);
+      padding:14px;border:1px solid rgba(255,255,255,.05);
+      box-shadow:var(--shadow-sm);
+    }
+    .variant-scroll {
+      display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;
+      scrollbar-width:none;-ms-overflow-style:none;
+    }
+    .variant-scroll::-webkit-scrollbar { display:none; }
+    .varian-btn {
+      min-height:44px;display:flex;align-items:center;justify-content:center;
+      padding:8px 14px;border-radius:14px;
+      background:var(--surface);border:1px solid rgba(255,255,255,.08);
+      color:var(--text-soft);font-size:.72rem;font-weight:600;
+      cursor:pointer;transition:all .2s ease;user-select:none;
+      flex-shrink:0;white-space:nowrap;gap:4px;
+    }
+    .varian-btn:hover { background:var(--surface-2); }
+    .varian-btn:active { transform:scale(.97); }
+    .varian-btn.pilih {
+      background:rgba(245,196,81,.12);border:2px solid var(--primary);
+      color:var(--primary);
+    }
+    .varian-icon { width:16px;height:16px;object-fit:contain;flex-shrink:0; }
+
+    .control-bar {
+      display:flex;align-items:center;gap:0;margin:10px 0;
+      background:var(--surface-2);border-radius:14px;padding:4px;overflow:hidden;
+    }
+    .control-group {
+      display:flex;align-items:center;gap:6px;padding:4px 10px;
+      flex:1;justify-content:center;
+    }
+    .control-group:not(:last-child) { border-right:1px solid rgba(255,255,255,.1); }
+    .control-label {
+      font-size:.72rem;font-weight:600;color:var(--text-soft);
+      white-space:nowrap;display:flex;align-items:center;gap:4px;
+    }
+    .control-label img { width:16px;height:16px;object-fit:contain; }
+    .control-qty { display:flex;align-items:center;gap:2px; }
+    .btn-qty {
+      width:30px;height:30px;border:none;border-radius:8px;
+      background:rgba(255,255,255,.06);color:white;
+      font-size:.9rem;font-weight:700;
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;transition:.15s;flex-shrink:0;
+    }
+    .btn-qty:hover { background:rgba(255,255,255,.14); }
+    .btn-qty:active { transform:scale(.94); }
+    .qty-angka { min-width:28px;text-align:center;font-size:.85rem;font-weight:700;color:white; }
+    .suhu-toggle {
+      display:flex;gap:0;margin:10px 0;
+      background:var(--surface-2);border-radius:14px;padding:4px;
+    }
+    .suhu-btn {
+      flex:1;padding:10px;border-radius:12px;border:none;
+      font-size:.74rem;font-weight:600;cursor:pointer;
+      text-align:center;transition:.2s;
+      background:transparent;color:var(--text-soft);
+      display:flex;align-items:center;justify-content:center;gap:5px;
+    }
+    .suhu-btn img { width:16px;height:16px;object-fit:contain; }
+    .suhu-btn.aktif { background:var(--primary);color:#111827;font-weight:700; }
+    .option-row { display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0; }
+    .option-label { font-size:.74rem;font-weight:600;color:var(--text-soft);display:flex;align-items:center;gap:4px;white-space:nowrap; }
+    .option-label img { width:16px;height:16px;object-fit:contain; }
+    .qty-group { display:inline-flex;align-items:center;gap:2px;background:var(--surface-2);border-radius:10px;padding:2px; }
+    .btn-sm {
+      min-height:38px;padding:0 14px;border-radius:var(--radius-chip);
+      background:var(--surface);border:1px solid rgba(255,255,255,.08);
+      color:var(--text-soft);font-size:.72rem;font-weight:600;
+      cursor:pointer;transition:.2s;
+      display:inline-flex;align-items:center;gap:4px;white-space:nowrap;
+    }
+    .btn-sm img { width:15px;height:15px;object-fit:contain; }
+    .btn-sm:hover { background:var(--surface-2); }
+    .btn-sm:active { transform:scale(.97); }
+    .btn-sm.aktif { background:var(--primary);border-color:var(--primary);color:#111827; }
+    .btn-tambah {
+      height:46px;width:100%;border:none;border-radius:var(--radius-btn-lg);
+      background:var(--success);color:white;font-size:.85rem;font-weight:700;
+      cursor:pointer;transition:.2s;margin-top:10px;
+      display:flex;align-items:center;justify-content:center;gap:6px;
+    }
+    .btn-tambah img { width:18px;height:18px;object-fit:contain; }
+    .btn-tambah:hover { background:#16A34A; }
+    .btn-tambah:active { transform:translateY(2px); }
+
+    /* FLOATING CART */
+    .cart-float {
+      position:fixed;bottom:var(--safe-bottom);left:10px;right:10px;
+      background:var(--surface);border-radius:var(--radius-chip);
+      padding:8px 8px 8px 16px;display:flex;align-items:center;gap:10px;
+      z-index:60;box-shadow:var(--shadow-md);
+      border:1px solid rgba(255,255,255,.06);
+    }
+    .cart-badge {
+      width:38px;height:38px;border-radius:var(--radius-btn-sm);
+      background:var(--primary);color:#111827;font-weight:800;font-size:.85rem;
+      display:flex;align-items:center;justify-content:center;
+      flex-shrink:0;cursor:pointer;transition:.15s;
+    }
+    .cart-badge:active { transform:scale(.94); }
+    .cart-info { flex:1;min-width:0;cursor:pointer; }
+    .cart-total { font-weight:700;font-size:.95rem;color:var(--text); }
+    .cart-items { font-size:.65rem;color:var(--text-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+    .btn-order {
+      height:46px;padding:0 18px;border:none;border-radius:18px;
+      background:var(--primary);color:#111827;font-size:.82rem;
+      font-weight:800;letter-spacing:.3px;cursor:pointer;transition:.2s;
+      white-space:nowrap;display:flex;align-items:center;gap:4px;flex-shrink:0;
+    }
+    .btn-order img { width:18px;height:18px;object-fit:contain; }
+    .btn-order:hover { background:var(--primary-dark); }
+    .btn-order:active { transform:scale(.97); }
+
+    /* SHEET */
+    .sheet-overlay {
+      display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);
+      z-index:80;justify-content:center;align-items:flex-end;
+    }
+    .sheet {
+      background:var(--surface);border-radius:var(--radius-popup) var(--radius-popup) 0 0;
+      padding:16px 12px 20px;width:100%;max-height:60vh;overflow-y:auto;
+      animation:slideUp .3s ease;border:1px solid rgba(255,255,255,.06);
+    }
+    @keyframes slideUp { from{transform:translateY(100%);} to{transform:translateY(0);} }
+    .sheet-handle { width:36px;height:4px;background:var(--surface-2);border-radius:2px;margin:0 auto 12px; }
+    .sheet h3 { font-size:.95rem;font-weight:700;margin-bottom:10px;color:var(--text);display:flex;align-items:center;gap:6px; }
+    .sheet h3 img { width:20px;height:20px;object-fit:contain; }
+    .cart-item {
+      display:flex;align-items:center;gap:8px;padding:10px 0;
+      border-bottom:1px solid rgba(255,255,255,.05);font-size:.74rem;
+    }
+    .cart-item .item-name { flex:1;color:var(--text);font-weight:500;font-size:.72rem; }
+    .cart-item .item-price { color:var(--primary);font-weight:700;margin:0 6px;white-space:nowrap;font-size:.72rem; }
+    .cart-item button { min-width:30px;height:30px;border:none;border-radius:8px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:.8rem;transition:.15s;flex-shrink:0; }
+    .btn-edit { background:var(--primary);color:#111827;padding:0 10px; }
+    .btn-edit:hover { background:var(--primary-dark); }
+    .btn-del { background:rgba(239,68,68,.15);color:#FCA5A5; }
+    .btn-del:hover { background:rgba(239,68,68,.25); }
+    .sheet-qty { display:inline-flex;align-items:center;gap:2px;background:var(--surface-2);border-radius:8px;padding:2px; }
+    .sheet-qty button { min-width:28px;height:28px;border:none;border-radius:6px;background:transparent;color:var(--text);font-weight:700;cursor:pointer;font-size:.8rem; }
+    .sheet-qty button:hover { background:#384255; }
+    .sheet-qty span { min-width:22px;text-align:center;font-weight:700;font-size:.8rem; }
+    .sheet-sub { margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,.08); }
+    .sheet-sub-row { display:flex;justify-content:space-between;font-size:.74rem;color:var(--text-soft);padding:2px 0; }
+    .sheet-total { display:flex;justify-content:space-between;font-weight:800;font-size:1rem;color:var(--primary);margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.12); }
+    .btn-tutup { width:100%;margin-top:12px;height:44px;border:none;border-radius:var(--radius-btn-lg);background:var(--surface-2);color:var(--text);font-weight:700;cursor:pointer;font-size:.8rem;transition:.2s; }
+    .btn-tutup:hover { background:#384255; }
+
+    /* MODAL */
+    .modal-overlay {
+      display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);
+      z-index:90;justify-content:center;align-items:center;padding:16px;
+    }
+    .modal-dialog {
+      background:var(--surface);border-radius:var(--radius-card);padding:20px;
+      width:100%;max-width:380px;border:1px solid rgba(255,255,255,.06);
+      box-shadow:var(--shadow-md);animation:modalIn .2s ease;
+    }
+    @keyframes modalIn { from{opacity:0;transform:scale(.95) translateY(10px);} to{opacity:1;transform:scale(1) translateY(0);} }
+    .modal-dialog h3 { font-size:.95rem;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:6px; }
+    .modal-dialog h3 img { width:20px;height:20px;object-fit:contain; }
+    .modal-actions { display:flex;gap:8px;margin-top:14px;justify-content:flex-end;flex-wrap:wrap; }
+    .btn {
+      height:42px;padding:0 18px;border-radius:var(--radius-btn-sm);border:none;
+      font-weight:600;cursor:pointer;font-size:.78rem;transition:.2s;
+      display:inline-flex;align-items:center;gap:4px;
+    }
+    .btn img { width:16px;height:16px;object-fit:contain; }
+    .btn-outline { background:transparent;color:var(--text-soft);border:1px solid rgba(255,255,255,.15); }
+    .btn-outline:hover { border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.04); }
+    .btn-primary { background:var(--success);color:#fff; }
+    .btn-primary:hover { background:#16A34A; }
+
+    /* PAYMENT GRID */
+    .payment-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 10px 0;
+    }
+    .btn-payment {
+      width: 100%;
+      justify-content: center;
+      padding: 12px 8px;
+      border-radius: var(--radius-btn-lg);
+      font-weight: 700;
+      font-size: 0.75rem;
+      gap: 8px;
+    }
+    .btn-payment img {
+      width: 20px;
+      height: 20px;
+    }
+    .btn-qris { background: #00A86B; color: white; }
+    .btn-qris:hover { background: #008a57; }
+    .btn-dana { background: #005E93; color: white; }
+    .btn-dana:hover { background: #004a73; }
+    .btn-gopay { background: #00AA5B; color: white; }
+    .btn-gopay:hover { background: #008a4a; }
+    .btn-seabank { background: #0B4F6C; color: white; }
+    .btn-seabank:hover { background: #083c52; }
+    .btn-bca { background: #1A3E6F; color: white; }
+    .btn-bca:hover { background: #143057; }
+    .btn-shopeepay { background: #EE4D2D; color: white; }
+    .btn-shopeepay:hover { background: #c43d22; }
+
+    /* PAYMENT BOX */
+    .payment-box {
+      text-align:center;
+      padding:16px;
+      background:var(--surface-2);
+      border-radius:var(--radius-btn-lg);
+      margin:12px 0;
+    }
+    .payment-box img {
+      width:180px;height:180px;
+      object-fit:contain;
+      background:white;
+      border-radius:12px;
+      padding:8px;
+    }
+    .payment-box .payment-total {
+      font-weight:800;
+      font-size:1.2rem;
+      color:var(--primary);
+      margin:10px 0;
+    }
+    .payment-box .payment-note {
+      font-size:.7rem;
+      color:var(--text-soft);
+      margin-top:6px;
+    }
+
+    /* FILM INTRODUCTION SHEET */
+    .film-intro {
+      background: linear-gradient(135deg, var(--surface), #16202a);
+    }
+    .film-poster {
+      width: 100%;
+      border-radius: var(--radius-card);
+      margin-bottom: 16px;
+    }
+    .film-detail {
+      margin-bottom: 16px;
+    }
+    .film-detail-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .film-detail-item {
+      flex: 1;
+      background: rgba(255,255,255,.05);
+      padding: 10px;
+      border-radius: var(--radius-btn-sm);
+    }
+    .film-detail-label {
+      font-size: 0.65rem;
+      color: var(--primary);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .film-detail-value {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .film-synopsis {
+      font-size: 0.7rem;
+      line-height: 1.5;
+      color: var(--text-soft);
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,.08);
+    }
+
+    @media(max-width:380px){
+      .cart-float { padding:6px 6px 6px 12px;gap:6px; }
+      .cart-badge { width:34px;height:34px;font-size:.75rem; }
+      .btn-order { height:40px;padding:0 14px;font-size:.75rem; }
+      .cart-total { font-size:.85rem; }
+      .btn-sm { min-height:36px;padding:0 10px;font-size:.7rem; }
+      .btn-tambah { height:42px;font-size:.8rem; }
+      .tab { font-size:.72rem;padding:8px 4px; }
+      .now-playing-cover { width: 70px; height: 100px; }
+      .np-title { font-size: 0.85rem; }
+      .now-playing-inner { padding: 12px; gap: 12px; }
+      .btn-payment { font-size: 0.7rem; padding: 10px 4px; }
+      .btn-payment img { width: 16px; height: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <img src="https://api.iconify.design/noto:popcorn.svg" class="header-icon" alt="">
+    <h1>SnackFlix <span>TianTiwi</span></h1>
+    <img src="https://api.iconify.design/noto:beverage-box.svg" class="header-icon" alt="">
+  </div>
+</header>
+
+<!-- MAIN APP -->
+<div id="mainApp">
+  <div class="screen">
+    <div class="screen-text"><span class="screen-dot"></span> ROOM CINEMA 1 <span class="screen-dot"></span></div>
+  </div>
+
+  <!-- NOW PLAYING SECTION - SIMETRIS -->
+  <div class="now-playing" id="nowPlayingBtn">
+    <div class="now-playing-inner">
+      <img src="https://image.tmdb.org/t/p/w200/8cdWjvZcExsjwgZ6UxkHl9C6oZz.jpg" alt="Movie Cover" class="now-playing-cover" id="movieCover">
+      <div class="now-playing-info">
+        <div class="np-label">
+          <img src="https://api.iconify.design/mdi:play-circle.svg" alt=""> NOW PLAYING
+        </div>
+        <div class="np-title" id="movieTitle">Deadpool & Wolverine</div>
+        <div class="np-meta">
+          <span><img src="https://api.iconify.design/mdi:account.svg" alt=""> Ryan, Hugh</span>
+          <span><img src="https://api.iconify.design/mdi:director-chair.svg" alt=""> Shawn Levy</span>
+        </div>
+        <div class="np-time">
+          <img src="https://api.iconify.design/mdi:clock-outline.svg" alt=""> 
+          <span id="movieTime">2 jam 7 menit</span> • 
+          <span id="movieRelease">2024</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="tabs">
+    <div id="tabFood" class="tab on" onclick="switchTab('food')"><img src="https://api.iconify.design/noto:steaming-bowl.svg" class="tab-icon" alt=""> Makanan</div>
+    <div id="tabDrink" class="tab" onclick="switchTab('drink')"><img src="https://api.iconify.design/noto:beverage-box.svg" class="tab-icon" alt=""> Minuman</div>
+  </nav>
+
+  <main class="content" id="contentArea"></main>
+
+  <div class="cart-float">
+    <div class="cart-badge" id="cartBadge" onclick="openSheet()">0</div>
+    <div class="cart-info" onclick="openSheet()">
+      <div class="cart-total" id="cartTotalMini">Rp 0</div>
+      <div class="cart-items" id="cartItemsMini">Pilih menu dulu ya</div>
+    </div>
+    <button class="btn-order" onclick="reviewOrder()"><img src="https://api.iconify.design/noto:shopping-cart.svg" alt=""> ORDER</button>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="sheetOverlay" onclick="closeSheet()">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <h3><img src="https://api.iconify.design/noto:shopping-cart.svg" alt=""> Keranjang</h3>
+    <div id="sheetList"></div>
+    <div class="sheet-sub" id="sheetSub"></div>
+    <div class="sheet-total"><span>TOTAL</span><span id="sheetTotal">Rp 0</span></div>
+    <button class="btn-tutup" onclick="closeSheet()">Tutup</button>
+  </div>
+</div>
+
+<!-- FILM INTRODUCTION SHEET -->
+<div class="sheet-overlay" id="filmSheetOverlay" onclick="closeFilmSheet()">
+  <div class="sheet film-intro" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <h3><img src="https://api.iconify.design/mdi:movie-open.svg" alt=""> Sinopsis Film</h3>
+    <img src="https://image.tmdb.org/t/p/w500/8cdWjvZcExsjwgZ6UxkHl9C6oZz.jpg" alt="Poster" class="film-poster" id="filmPoster">
+    <div class="film-detail">
+      <div class="film-detail-row">
+        <div class="film-detail-item">
+          <div class="film-detail-label">🎬 Judul</div>
+          <div class="film-detail-value" id="filmJudul">Deadpool & Wolverine</div>
+        </div>
+        <div class="film-detail-item">
+          <div class="film-detail-label">📅 Rilis</div>
+          <div class="film-detail-value" id="filmRilis">2024</div>
+        </div>
+      </div>
+      <div class="film-detail-row">
+        <div class="film-detail-item">
+          <div class="film-detail-label">⭐ Lead Actor</div>
+          <div class="film-detail-value" id="filmActor">Ryan Reynolds, Hugh Jackman</div>
+        </div>
+        <div class="film-detail-item">
+          <div class="film-detail-label">🎥 Director</div>
+          <div class="film-detail-value" id="filmDirector">Shawn Levy</div>
+        </div>
+      </div>
+      <div class="film-detail-row">
+        <div class="film-detail-item">
+          <div class="film-detail-label">⏱️ Durasi</div>
+          <div class="film-detail-value" id="filmDurasi">2 jam 7 menit</div>
+        </div>
+        <div class="film-detail-item">
+          <div class="film-detail-label">🎭 Genre</div>
+          <div class="film-detail-value" id="filmGenre">Action, Comedy, Superhero</div>
+        </div>
+      </div>
+    </div>
+    <div class="film-synopsis" id="filmSinopsis">
+      Deadpool direkrut oleh Wolverine untuk menyelamatkan multiverse. Aksi kocak dan brutal dipadukan dengan cameo mengejutkan dari berbagai karakter Marvel. Film ini menghadirkan petualangan lintas dimensi yang belum pernah ada sebelumnya!
+    </div>
+    <button class="btn-tutup" onclick="closeFilmSheet()">Tutup</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-dialog" id="modalDialog"></div>
+</div>
+
+<script>
+// ==================== DATA FILM ====================
+const currentMovie = {
+  title: "Deadpool & Wolverine",
+  cover: "https://image.tmdb.org/t/p/w200/8cdWjvZcExsjwgZ6UxkHl9C6oZz.jpg",
+  poster: "https://image.tmdb.org/t/p/w500/8cdWjvZcExsjwgZ6UxkHl9C6oZz.jpg",
+  release: "2024",
+  duration: "2 jam 7 menit",
+  actor: "Ryan Reynolds, Hugh Jackman",
+  director: "Shawn Levy",
+  genre: "Action, Comedy, Superhero",
+  synopsis: "Deadpool direkrut oleh Wolverine untuk menyelamatkan multiverse. Aksi kocak dan brutal dipadukan dengan cameo mengejutkan dari berbagai karakter Marvel. Film ini menghadirkan petualangan lintas dimensi yang belum pernah ada sebelumnya!"
+};
+
+// ==================== DATA MENU ====================
+const STORAGE = 'snackflix_v12';
+let cart = [];
+let activeTab = 'food';
+let editIdx = null;
+
+const ICONS = {
+  mie:'https://api.iconify.design/noto:steaming-bowl.svg',
+  pentol:'https://api.iconify.design/noto:oden.svg',
+  sosis:'https://api.iconify.design/noto:sausage.svg',
+  popcorn:'https://api.iconify.design/noto:popcorn.svg',
+  drink:'https://api.iconify.design/noto:beverage-box.svg',
+  drink2:'https://api.iconify.design/noto:tropical-drink.svg',
+  tea:'https://api.iconify.design/noto:teacup-without-handle.svg',
+  hot:'https://api.iconify.design/noto:hot-beverage.svg',
+  ice:'https://api.iconify.design/noto:ice-cube.svg',
+  cart:'https://api.iconify.design/noto:shopping-cart.svg',
+  plus:'https://api.iconify.design/mdi:plus-circle.svg',
+  edit:'https://api.iconify.design/mdi:pencil.svg',
+  del:'https://api.iconify.design/mdi:delete.svg',
+  egg:'https://api.iconify.design/noto:egg.svg',
+  fire:'https://api.iconify.design/noto:fire.svg',
+  mayo:'https://api.iconify.design/mdi:bottle-soda.svg',
+  tomato:'https://api.iconify.design/noto:tomato.svg',
+  peanut:'https://api.iconify.design/noto:peanuts.svg',
+  soup:'https://api.iconify.design/noto:pot-of-food.svg',
+  cold:'https://api.iconify.design/mdi:snowflake.svg',
+  warm:'https://api.iconify.design/noto:fire.svg',
+  qris:'https://api.iconify.design/mdi:qrcode-scan.svg',
+  wa:'https://api.iconify.design/mdi:whatsapp.svg',
+  gopay:'https://api.iconify.design/mdi:wallet.svg',
+  dana:'https://api.iconify.design/mdi:wallet-outline.svg',
+  seabank:'https://api.iconify.design/mdi:bank.svg',
+  bca:'https://api.iconify.design/mdi:bank-outline.svg',
+  shopeepay:'https://api.iconify.design/mdi:shopping.svg',
+};
+
+let pick = {
+  mieV:'',mieQ:1,mieEgg:0,mieHot:false,
+  pentolQ:5,pentolSauce:'Kuah',pentolHot:false,
+  sosisQ:1,sosisHot:false,sosisMayo:false,sosisTomato:false,
+  popcornV:'',popcornQ:1,
+  sisriV:'',sisriQ:1,
+  marimasV:'',marimasQ:1,
+  tehjusV:'',tehjusQ:1,
+  specV:'',specWarm:false,specQ:1,
+  popiceV:'',popiceQ:1,
+};
+
+function save(){localStorage.setItem(STORAGE,JSON.stringify(cart));}
+
+function switchTab(t){
+  activeTab=t;
+  document.getElementById('tabFood').classList.toggle('on',t==='food');
+  document.getElementById('tabDrink').classList.toggle('on',t==='drink');
+  render();
+}
+
+function render(){
+  const area=document.getElementById('contentArea');
+  if(activeTab==='food'){
+    area.innerHTML=`
+      <div class="menu-section"><div class="menu-header"><img src="${ICONS.mie}" alt=""><div class="menu-header-info"><h3>Mie Instan</h3><span>Rp 6.000 + Telur Rp 3.000</span></div></div><div class="item-card"><div class="variant-scroll">${['Ayam Bawang','Rendang','Ayam Geprek','Soto'].map(v=>`<div class="varian-btn ${pick.mieV===v?'pilih':''}" onclick="pick.mieV='${v}';render()"><img src="${ICONS.mie}" class="varian-icon" alt="">${v}</div>`).join('')}</div><div class="control-bar"><div class="control-group"><span class="control-label"><img src="${ICONS.mie}" alt="">Porsi</span><div class="control-qty"><button class="btn-qty" onclick="pick.mieQ=Math.max(1,pick.mieQ-1);render()">−</button><span class="qty-angka">${pick.mieQ}</span><button class="btn-qty" onclick="pick.mieQ++;render()">+</button></div></div><div class="control-group"><span class="control-label"><img src="${ICONS.egg}" alt="">Telur</span><div class="control-qty"><button class="btn-qty" onclick="pick.mieEgg=Math.max(0,pick.mieEgg-1);render()">−</button><span class="qty-angka">${pick.mieEgg}</span><button class="btn-qty" onclick="pick.mieEgg++;render()">+</button></div></div></div><div class="option-row"><span class="btn-sm ${pick.mieHot?'aktif':''}" onclick="pick.mieHot=!pick.mieHot;render()"><img src="${ICONS.fire}" alt="">Pedas</span></div><button class="btn-tambah" onclick="addMie()"><img src="${ICONS.plus}" alt="">Tambah</button></div></div>
+      <div class="menu-section"><div class="menu-header"><img src="${ICONS.pentol}" alt=""><div class="menu-header-info"><h3>Pentol</h3><span>Rp 1.000/biji (min 5)</span></div></div><div class="item-card"><div class="option-row"><span class="btn-sm ${pick.pentolSauce==='Kuah'?'aktif':''}" onclick="pick.pentolSauce='Kuah';render()"><img src="${ICONS.soup}" alt="">Kuah</span><span class="btn-sm ${pick.pentolSauce==='Bumbu Kacang'?'aktif':''}" onclick="pick.pentolSauce='Bumbu Kacang';render()"><img src="${ICONS.peanut}" alt="">Kacang</span><span class="btn-sm ${pick.pentolHot?'aktif':''}" onclick="pick.pentolHot=!pick.pentolHot;render()"><img src="${ICONS.fire}" alt="">Pedas</span></div><div class="option-row"><span class="option-label">Jumlah</span><div class="qty-group"><button class="btn-qty" onclick="pick.pentolQ=Math.max(5,pick.pentolQ-1);render()">−</button><span class="qty-angka">${pick.pentolQ}</span><button class="btn-qty" onclick="pick.pentolQ++;render()">+</button></div><span style="font-size:.7rem;color:var(--text-soft);">biji</span></div><button class="btn-tambah" onclick="addPentol()"><img src="${ICONS.plus}" alt="">Tambah</button></div></div>
+      <div class="menu-section"><div class="menu-header"><img src="${ICONS.sosis}" alt=""><div class="menu-header-info"><h3>Sosis Bakar</h3><span>Rp 6.000/pcs</span></div></div><div class="item-card"><div class="control-bar"><div class="control-group"><span class="control-label"><img src="${ICONS.sosis}" alt="">Porsi</span><div class="control-qty"><button class="btn-qty" onclick="pick.sosisQ=Math.max(1,pick.sosisQ-1);render()">−</button><span class="qty-angka">${pick.sosisQ}</span><button class="btn-qty" onclick="pick.sosisQ++;render()">+</button></div></div></div><div class="option-row"><span class="btn-sm ${pick.sosisHot?'aktif':''}" onclick="pick.sosisHot=!pick.sosisHot;render()"><img src="${ICONS.fire}" alt="">Pedas</span><span class="btn-sm ${pick.sosisMayo?'aktif':''}" onclick="pick.sosisMayo=!pick.sosisMayo;render()"><img src="${ICONS.mayo}" alt="">Mayo</span><span class="btn-sm ${pick.sosisTomato?'aktif':''}" onclick="pick.sosisTomato=!pick.sosisTomato;render()"><img src="${ICONS.tomato}" alt="">Saus Tomat</span></div><button class="btn-tambah" onclick="addSosis()"><img src="${ICONS.plus}" alt="">Tambah</button></div></div>
+      <div class="menu-section"><div class="menu-header"><img src="${ICONS.popcorn}" alt=""><div class="menu-header-info"><h3>Popcorn</h3><span>Rp 5.000</span></div></div><div class="item-card"><div class="variant-scroll">${['Manis','Asin','Pedas','Keju'].map(v=>`<div class="varian-btn ${pick.popcornV===v?'pilih':''}" onclick="pick.popcornV='${v}';render()"><img src="${ICONS.popcorn}" class="varian-icon" alt="">${v}</div>`).join('')}</div><div class="option-row"><span class="option-label">Jumlah</span><div class="qty-group"><button class="btn-qty" onclick="pick.popcornQ=Math.max(1,pick.popcornQ-1);render()">−</button><span class="qty-angka">${pick.popcornQ}</span><button class="btn-qty" onclick="pick.popcornQ++;render()">+</button></div></div><button class="btn-tambah" onclick="addPopcorn()"><img src="${ICONS.plus}" alt="">Tambah</button></div></div>`;
+  } else {
+    area.innerHTML=`
+      <div class="menu-section"><div class="menu-header"><img src="${ICONS.drink}" alt=""><div class="menu-header-info"><h3>Teh Sisri</h3><span>Rp 2.000</span></div></div><div class="item-card"><div class="variant-scroll">${['Apel','Blackcurrant','Gula Batu','Cincau','Original','Lemon','Melati','Mangga'].map(v=>`<div class="varian-btn ${pick.sisriV===v?'pilih':''}" onclick="pick.sisriV='${v}';render()"><img src="${ICONS.drink}" class="varian-icon" alt="">${v}</div>`).join('')}</div><div class="option-row"><span class="option-label">Jumlah</span><div class="qty-group"><button class="btn-qty" onclick="pick.sisriQ=Math.max(1,pick.sisriQ-1);render()">−</button><span class="qty-angka">${pick.sisriQ}</span><button class="btn-qty" onclick="pick.sisriQ++;render()">+</button></div></div><button class="btn-tambah" onclick="addSisri()"><img src="${ICONS.plus}" alt="">Tambah</button></div></div>
+      <div class="menu-section"><div class="menu-header"><img src="${ICONS.drink2}" alt=""><div class="menu-header-info"><h3>Marimas</h3><span>Rp 3.000</span></div></div><div class="item-card"><div class="variant-scroll">${['Anggur','Apel Manis','Jambu','Jeruk','Jeruk Nipis','Mangga','M. Arumanis','Melon','Nanas Madu','Nanas','Stroberi'].map(v=>`<div class="varian-btn ${pick.marimasV===v?'pilih':''}" onclick="pick.marimasV='${v}';render()"><img src="${ICONS.drink2}" class="varian-icon" alt="">${v}</div>`).join('')}</div><div class="option-row"><span class="option-label">Jumlah</span><div class="qty-group"><button class="btn-qty" onclick="pick.marimasQ=Math.max(1,pick.marimasQ-1);render()">−</button><span class="qty-angka">${pick.marimasQ}</span><button class="btn-qty" onclick="pick.marimasQ++;render()">+</button></div></div><button class="btn-tambah" onclick="addMarimas()"><img src="${ICONS.plus}" alt="">Tambah</button></div></div>
+      <div class="menu-section"><div class="menu-header"><img src="${ICONS.tea}" alt=""><div class="menu-header-info"><h3>Teh Jus Gula Batu</h3><span>Rp 2.000</span></div></div><div class="item-card"><div class="variant-scroll">${['Gula Batu','Melati','Lemon','Apel','Madu'].map(v=>`<div class="varian-btn ${pick.tehjusV===v?'pilih':''}" onclick="pick.tehjusV='${v}';render()"><img src="${ICONS.tea}" class="varian-icon" alt="">${v}</div>`).join('')}</div><div class="option-row"><span class="option-label">Jumlah</span><div class="qty-group"><button class="btn-qty" onclick="pick.tehjusQ=Math.max(1,pick.tehjusQ-1);render()">−</button><span class="qty-angka">${pick.tehjusQ}</span><button class="btn-qty" onclick="pick.tehjusQ++;render()">+</button></div></div><button class="btn-tambah" onclick="addTehjus()"><img src="${ICONS.plus}" alt="">Tambah</button></div></div>
+      <div class="menu-section"><div class="menu-header"><img src="${ICONS.hot}" alt=""><div class="menu-header-info"><h3>Minuman Spesial</h3><span>Rp 4.000</span></div></div><div class="item-card"><div class="variant-scroll">${['Teh Tarik','Teh Solo','Chocolatos','Matcha','Vanilla Latte'].map(v=>`<div class="varian-btn ${pick.specV===v?'pilih':''}" onclick="pick.specV='${v}';render()"><img src="${ICONS.hot}" class="varian-icon" alt="">${v}</div>`).join('')}</div><div class="suhu-toggle"><div class="suhu-btn ${!pick.specWarm?'aktif':''}" onclick="pick.specWarm=false;render()"><img src="${ICONS.cold}" alt="">Dingin</div><div class="suhu-btn ${pick.specWarm?'aktif':''}" onclick="pick.specWarm=true;render()"><img src="${ICONS.warm}" alt="">Hangat</div></div><div class="option-row"><span class="option-label">Jumlah</span><div class="qty-group"><button class="btn-qty" onclick="pick.specQ=Math.max(1,pick.specQ-1);render()">−</button><span class="qty-angka">${pick.specQ}</span><button class="btn-qty" onclick="pick.specQ++;render()">+</button></div></div><button class="btn-tambah" onclick="addSpec()"><img src="${ICONS.plus}" alt="">Tambah</button></div></div>
+      <div class="menu-section"><div class="menu-header"><img src="${ICONS.ice}" alt=""><div class="menu-header-info"><h3>Pop Ice</h3><span>Rp 5.000 (Es)</span></div></div><div class="item-card"><div class="variant-scroll">${['Durian','Mango','Strawberry','Coklat','Vanilla','Blue','Permen Karet'].map(v=>`<div class="varian-btn ${pick.popiceV===v?'pilih':''}" onclick="pick.popiceV='${v}';render()"><img src="${ICONS.ice}" class="varian-icon" alt="">${v}</div>`).join('')}</div><div class="option-row"><span class="option-label">Jumlah</span><div class="qty-group"><button class="btn-qty" onclick="pick.popiceQ=Math.max(1,pick.popiceQ-1);render()">−</button><span class="qty-angka">${pick.popiceQ}</span><button class="btn-qty" onclick="pick.popiceQ++;render()">+</button></div></div><button class="btn-tambah" onclick="addPopice()"><img src="${ICONS.plus}" alt="">Tambah</button></div></div>`;
+  }
+  updateFloatCart();
+  if(document.getElementById('sheetOverlay').style.display==='flex')refreshSheetContent();
+}
+
+// ==================== CART FUNCTIONS ====================
+function addToCart(item){
+  cart.push(item);
+  save();
+  render();
+}
+
+function changeQty(idx,d){
+  if(idx<0||idx>=cart.length)return;
+  const item=cart[idx];
+  if(item.type==='pentol'){
+    const n=(item.qty||1)+d;
+    if(n<5)return;
+    item.qty=n;item.price=item.unitPrice*item.qty;
+  } else {
+    const n=(item.qty||1)+d;
+    if(n<1){cart.splice(idx,1);}
+    else{item.qty=n;item.price=item.unitPrice*item.qty;}
+  }
+  save();updateFloatCart();refreshSheetContent();render();
+}
+function removeItem(idx){if(idx<0||idx>=cart.length)return;cart.splice(idx,1);save();updateFloatCart();refreshSheetContent();render();}
+function calcSub(){
+  let mie=0,snack=0,drink=0;
+  cart.forEach(i=>{
+    if(i.type==='mie')mie+=i.price;
+    else if(['pentol','sosis','popcorn'].includes(i.type))snack+=i.price;
+    else drink+=i.price;
+  });
+  return{mie,snack,drink,total:mie+snack+drink};
+}
+function updateFloatCart(){
+  const sub=calcSub();
+  const badge=document.getElementById('cartBadge');
+  if(badge)badge.innerText=cart.length;
+  const totalMini=document.getElementById('cartTotalMini');
+  if(totalMini)totalMini.innerText='Rp '+sub.total.toLocaleString();
+  const itemsMini=document.getElementById('cartItemsMini');
+  if(itemsMini)itemsMini.innerText=cart.length?cart.map(i=>i.label).join(', '):'Pilih menu dulu ya';
+}
+function refreshSheetContent(){
+  const list=document.getElementById('sheetList');
+  const subDiv=document.getElementById('sheetSub');
+  const totalEl=document.getElementById('sheetTotal');
+  if(!list)return;
+  if(!cart.length){
+    list.innerHTML='<div style="text-align:center;color:var(--text-soft);padding:20px;">Keranjang kosong</div>';
+    if(subDiv)subDiv.innerHTML='';if(totalEl)totalEl.innerText='Rp 0';
+  } else {
+    list.innerHTML=cart.map((item,idx)=>`<div class="cart-item"><span class="item-name">${item.label}</span><div class="sheet-qty"><button onclick="changeQty(${idx},-1)">−</button><span>${item.qty||1}</span><button onclick="changeQty(${idx},1)">+</button></div><span class="item-price">Rp ${item.price.toLocaleString()}</span><button class="btn-edit" onclick="editItem(${idx})"><img src="${ICONS.edit}" style="width:13px;height:13px;" alt=""></button><button class="btn-del" onclick="removeItem(${idx})"><img src="${ICONS.del}" style="width:13px;height:13px;" alt=""></button></div>`).join('');
+    const sub=calcSub();
+    if(subDiv)subDiv.innerHTML=`${sub.mie>0?`<div class="sheet-sub-row"><span>Mie</span><span>Rp ${sub.mie.toLocaleString()}</span></div>`:''}${sub.snack>0?`<div class="sheet-sub-row"><span>Snack</span><span>Rp ${sub.snack.toLocaleString()}</span></div>`:''}${sub.drink>0?`<div class="sheet-sub-row"><span>Minuman</span><span>Rp ${sub.drink.toLocaleString()}</span></div>`:''}`;
+    if(totalEl)totalEl.innerText='Rp '+sub.total.toLocaleString();
+  }
+}
+function openSheet(){document.getElementById('sheetOverlay').style.display='flex';refreshSheetContent();}
+function closeSheet(){document.getElementById('sheetOverlay').style.display='none';updateFloatCart();}
+
+// ==================== EDIT ====================
+function editItem(idx){
+  editIdx=idx;const item=cart[idx];if(!item)return;
+  let html=`<h3><img src="${ICONS.edit}" alt="">Ubah</h3><p style="font-size:.75rem;color:var(--text-soft);margin-bottom:8px;">${item.label}</p>`;
+  if(item.type==='mie'){html+=`<div class="option-row"><span class="option-label"><img src="${ICONS.egg}" alt="">Telur</span><div class="qty-group"><button class="btn-qty" onclick="editEgg(-1)">−</button><span class="qty-angka">${item.egg||0}</span><button class="btn-qty" onclick="editEgg(1)">+</button></div></div><div class="option-row"><span class="btn-sm ${item.hot?'aktif':''}" onclick="editHot()"><img src="${ICONS.fire}" alt="">Pedas</span></div>`;}
+  else if(item.type==='pentol'){html+=`<div class="option-row"><span class="btn-sm ${item.sauce==='Kuah'?'aktif':''}" onclick="editSauce('Kuah')"><img src="${ICONS.soup}" alt="">Kuah</span><span class="btn-sm ${item.sauce==='Bumbu Kacang'?'aktif':''}" onclick="editSauce('Bumbu Kacang')"><img src="${ICONS.peanut}" alt="">Kacang</span><span class="btn-sm ${item.hot?'aktif':''}" onclick="editHot()"><img src="${ICONS.fire}" alt="">Pedas</span></div>`;}
+  else if(item.type==='sosis'){html+=`<div class="option-row"><span class="btn-sm ${item.hot?'aktif':''}" onclick="editHot()"><img src="${ICONS.fire}" alt="">Pedas</span><span class="btn-sm ${item.mayo?'aktif':''}" onclick="editMayo()"><img src="${ICONS.mayo}" alt="">Mayo</span><span class="btn-sm ${item.tomato?'aktif':''}" onclick="editTomato()"><img src="${ICONS.tomato}" alt="">Saus Tomat</span></div>`;}
+  else if(item.type==='specdrink'){html+=`<div class="suhu-toggle"><div class="suhu-btn ${!item.warm?'aktif':''}" onclick="editWarm(false)"><img src="${ICONS.cold}" alt="">Dingin</div><div class="suhu-btn ${item.warm?'aktif':''}" onclick="editWarm(true)"><img src="${ICONS.warm}" alt="">Hangat</div></div>`;}
+  else{html+=`<p style="color:var(--text-soft);font-size:.7rem;">Gunakan +/− untuk ubah jumlah</p>`;}
+  html+=`<div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">Selesai</button></div>`;
+  document.getElementById('modalDialog').innerHTML=html;
+  document.getElementById('modalOverlay').style.display='flex';
+}
+function editEgg(d){const item=cart[editIdx];if(!item)return;item.egg=Math.max(0,(item.egg||0)+d);item.price=(item.qty*6000)+(item.egg*3000);item.unitPrice=6000+(item.egg/item.qty*3000);relabelMie(item);save();editItem(editIdx);updateFloatCart();refreshSheetContent();}
+function editHot(){const item=cart[editIdx];if(!item)return;item.hot=!item.hot;if(item.type==='mie')relabelMie(item);else if(item.type==='pentol')item.label=`Pentol ${item.sauce} x${item.qty}${item.hot?' Pedas':''}`;else if(item.type==='sosis')relabelSosis(item);save();editItem(editIdx);updateFloatCart();refreshSheetContent();}
+function editSauce(s){const item=cart[editIdx];if(!item)return;item.sauce=s;item.label=`Pentol ${s} x${item.qty}${item.hot?' Pedas':''}`;save();editItem(editIdx);updateFloatCart();refreshSheetContent();}
+function editMayo(){const item=cart[editIdx];if(!item)return;item.mayo=!item.mayo;relabelSosis(item);save();editItem(editIdx);updateFloatCart();refreshSheetContent();}
+function editTomato(){const item=cart[editIdx];if(!item)return;item.tomato=!item.tomato;relabelSosis(item);save();editItem(editIdx);updateFloatCart();refreshSheetContent();}
+function editWarm(w){const item=cart[editIdx];if(!item)return;item.warm=w;item.label=`${item.variant} ${w?'Hangat':'Dingin'} x${item.qty}`;save();editItem(editIdx);updateFloatCart();refreshSheetContent();}
+function relabelMie(item){let l=`Mie ${item.variant} x${item.qty}`;if(item.egg>0)l+=` +${item.egg}Telur`;if(item.hot)l+=' Pedas';item.label=l;}
+function relabelSosis(item){let l=`Sosis Bakar x${item.qty}`;if(item.hot)l+=' Pedas';if(item.mayo)l+=' Mayo';if(item.tomato)l+=' SausTomat';item.label=l;}
+function closeModal(){document.getElementById('modalOverlay').style.display='none';}
+
+// ==================== ADD ITEMS ====================
+function addMie(){if(!pick.mieV){alert('Pilih varian mie!');return;}const q=pick.mieQ,e=pick.mieEgg,price=(q*6000)+(e*3000);let label=`Mie ${pick.mieV} x${q}`;if(e>0)label+=` +${e}Telur`;if(pick.mieHot)label+=' Pedas';addToCart({type:'mie',variant:pick.mieV,qty:q,egg:e,hot:pick.mieHot,price,label});pick.mieV='';pick.mieQ=1;pick.mieEgg=0;pick.mieHot=false;render();}
+function addPentol(){if(pick.pentolQ<5){alert('Minimal 5 biji!');return;}const q=pick.pentolQ,price=q*1000;let label=`Pentol ${pick.pentolSauce} x${q}`;if(pick.pentolHot)label+=' Pedas';addToCart({type:'pentol',qty:q,sauce:pick.pentolSauce,hot:pick.pentolHot,price,label});pick.pentolQ=5;pick.pentolSauce='Kuah';pick.pentolHot=false;render();}
+function addSosis(){const q=pick.sosisQ,price=q*6000;let label=`Sosis Bakar x${q}`;if(pick.sosisHot)label+=' Pedas';if(pick.sosisMayo)label+=' Mayo';if(pick.sosisTomato)label+=' SausTomat';addToCart({type:'sosis',qty:q,hot:pick.sosisHot,mayo:pick.sosisMayo,tomato:pick.sosisTomato,price,label});pick.sosisQ=1;pick.sosisHot=false;pick.sosisMayo=false;pick.sosisTomato=false;render();}
+function addPopcorn(){if(!pick.popcornV){alert('Pilih rasa!');return;}addToCart({type:'popcorn',variant:pick.popcornV,qty:pick.popcornQ,price:pick.popcornQ*5000,label:`Popcorn ${pick.popcornV} x${pick.popcornQ}`});pick.popcornV='';pick.popcornQ=1;render();}
+function addSisri(){if(!pick.sisriV){alert('Pilih rasa!');return;}addToCart({type:'sisri',variant:pick.sisriV,qty:pick.sisriQ,price:pick.sisriQ*2000,label:`Teh Sisri ${pick.sisriV} x${pick.sisriQ}`});pick.sisriV='';pick.sisriQ=1;render();}
+function addMarimas(){if(!pick.marimasV){alert('Pilih rasa!');return;}addToCart({type:'marimas',variant:pick.marimasV,qty:pick.marimasQ,price:pick.marimasQ*3000,label:`Marimas ${pick.marimasV} x${pick.marimasQ}`});pick.marimasV='';pick.marimasQ=1;render();}
+function addTehjus(){if(!pick.tehjusV){alert('Pilih rasa!');return;}addToCart({type:'tehjus',variant:pick.tehjusV,qty:pick.tehjusQ,price:pick.tehjusQ*2000,label:`Teh Jus ${pick.tehjusV} x${pick.tehjusQ}`});pick.tehjusV='';pick.tehjusQ=1;render();}
+function addSpec(){if(!pick.specV){alert('Pilih minuman!');return;}addToCart({type:'specdrink',variant:pick.specV,qty:pick.specQ,warm:pick.specWarm,price:pick.specQ*4000,label:`${pick.specV} ${pick.specWarm?'Hangat':'Dingin'} x${pick.specQ}`});pick.specV='';pick.specWarm=false;pick.specQ=1;render();}
+function addPopice(){if(!pick.popiceV){alert('Pilih rasa!');return;}addToCart({type:'popice',variant:pick.popiceV,qty:pick.popiceQ,price:pick.popiceQ*5000,label:`Pop Ice ${pick.popiceV} x${pick.popiceQ}`});pick.popiceV='';pick.popiceQ=1;render();}
+
+function hasFood(){return cart.some(i=>['mie','pentol','sosis','popcorn'].includes(i.type));}
+function hasDrink(){return cart.some(i=>['sisri','marimas','tehjus','specdrink','popice'].includes(i.type));}
+
+// ==================== ORDER FLOW ====================
+function reviewOrder(){
+  if(!cart.length){alert('Pilih dulu ya!');return;}
+  if(hasFood()&&!hasDrink()){showPrompt('Kamu baru pesan MAKANAN<br><br>Mau tambah MINUMAN?','drink');return;}
+  if(!hasFood()&&hasDrink()){showPrompt('Kamu baru pesan MINUMAN<br><br>Mau tambah MAKANAN?','food');return;}
+  pilihPembayaran();
+}
+
+function showPrompt(msg,tab){
+  const m=document.getElementById('modalOverlay');
+  document.getElementById('modalDialog').innerHTML=`<p style="font-size:.85rem;margin-bottom:6px;">${msg}</p><div class="modal-actions"><button class="btn btn-outline" onclick="closeModal();pilihPembayaran()">Itu Saja</button><button class="btn btn-primary" onclick="closeModal();switchTab('${tab}')">Ya, Tambah</button></div>`;
+  m.style.display='flex';
+}
+
+function pilihPembayaran(){
+  const sub=calcSub();
+  const m=document.getElementById('modalOverlay');
+  document.getElementById('modalDialog').innerHTML=`
+    <h3><img src="${ICONS.cart}" alt="">Pilih Pembayaran</h3>
+    <p style="font-size:.8rem;color:var(--text-soft);margin-bottom:6px;">Total pesanan kamu:</p>
+    <p style="font-size:1.3rem;font-weight:800;color:var(--primary);margin-bottom:14px;">Rp ${sub.total.toLocaleString()}</p>
+    <div class="payment-grid">
+      <button class="btn btn-payment btn-qris" onclick="bayarQRIS()"><img src="${ICONS.qris}" alt=""> QRIS</button>
+      <button class="btn btn-payment btn-dana" onclick="bayarDana()"><img src="${ICONS.dana}" alt=""> Dana</button>
+      <button class="btn btn-payment btn-gopay" onclick="bayarGoPay()"><img src="${ICONS.gopay}" alt=""> GoPay</button>
+      <button class="btn btn-payment btn-seabank" onclick="bayarSeaBank()"><img src="${ICONS.seabank}" alt=""> SeaBank</button>
+      <button class="btn btn-payment btn-bca" onclick="bayarBCA()"><img src="${ICONS.bca}" alt=""> Bank BCA</button>
+      <button class="btn btn-payment btn-shopeepay" onclick="bayarShopeePay()"><img src="${ICONS.shopeepay}" alt=""> ShopeePay</button>
+    </div>
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">Kembali</button></div>`;
+  m.style.display='flex';
+}
+
+function bayarQRIS(){
+  const sub=calcSub();
+  const m=document.getElementById('modalOverlay');
+  document.getElementById('modalDialog').innerHTML=`
+    <h3><img src="${ICONS.qris}" alt="">Pembayaran QRIS</h3>
+    <div class="payment-box">
+      <img src="https://placehold.co/400x400/white/000?text=QRIS+CODE" alt="QRIS">
+      <div class="payment-total">Rp ${sub.total.toLocaleString()}</div>
+      <div class="payment-note">Scan QR di atas untuk membayar</div>
+    </div>
+    <p style="font-size:.75rem;color:var(--text-soft);text-align:center;margin:8px 0;">
+      Setelah transfer, <b>screenshot bukti</b> dan kirim ke WhatsApp admin!
+    </p>
+    <div class="modal-actions" style="flex-direction:column;gap:8px;">
+      <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="kirimWA('QRIS')"><img src="${ICONS.wa}" alt="">Konfirmasi & Kirim WA</button>
+      <button class="btn btn-outline" style="width:100%;justify-content:center;" onclick="pilihPembayaran()">Kembali</button>
+    </div>`;
+  m.style.display='flex';
+}
+
+function bayarDana(){
+  const sub=calcSub();
+  const m=document.getElementById('modalOverlay');
+  document.getElementById('modalDialog').innerHTML=`
+    <h3><img src="${ICONS.dana}" alt="">Pembayaran Dana</h3>
+    <div class="payment-box">
+      <img src="https://placehold.co/400x400/white/000?text=DANA+QR" alt="DANA">
+      <div class="payment-total">Rp ${sub.total.toLocaleString()}</div>
+      <div class="payment-note">Scan QR Code atau kirim ke nomor DANA kami</div>
+    </div>
+    <p style="font-size:.75rem;color:var(--text-soft);text-align:center;margin:8px 0;">
+      Setelah transfer, <b>screenshot bukti</b> dan kirim ke WhatsApp admin!
+    </p>
+    <div class="modal-actions" style="flex-direction:column;gap:8px;">
+      <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="kirimWA('Dana')"><img src="${ICONS.wa}" alt="">Konfirmasi & Kirim WA</button>
+      <button class="btn btn-outline" style="width:100%;justify-content:center;" onclick="pilihPembayaran()">Kembali</button>
+    </div>`;
+  m.style.display='flex';
+}
+
+function bayarGoPay(){
+  const sub=calcSub();
+  const m=document.getElementById('modalOverlay');
+  document.getElementById('modalDialog').innerHTML=`
+    <h3><img src="${ICONS.gopay}" alt="">Pembayaran GoPay</h3>
+    <div class="payment-box">
+      <img src="https://placehold.co/400x400/white/000?text=GoPay+QR" alt="GoPay">
+      <div class="payment-total">Rp ${sub.total.toLocaleString()}</div>
+      <div class="payment-note">Scan QR Code atau kirim ke nomor GoPay kami</div>
+    </div>
+    <p style="font-size:.75rem;color:var(--text-soft);text-align:center;margin:8px 0;">
+      Setelah transfer, <b>screenshot bukti</b> dan kirim ke WhatsApp admin!
+    </p>
+    <div class="modal-actions" style="flex-direction:column;gap:8px;">
+      <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="kirimWA('GoPay')"><img src="${ICONS.wa}" alt="">Konfirmasi & Kirim WA</button>
+      <button class="btn btn-outline" style="width:100%;justify-content:center;" onclick="pilihPembayaran()">Kembali</button>
+    </div>`;
+  m.style.display='flex';
+}
+
+function bayarSeaBank(){
+  const sub=calcSub();
+  const m=document.getElementById('modalOverlay');
+  document.getElementById('modalDialog').innerHTML=`
+    <h3><img src="${ICONS.seabank}" alt="">Pembayaran SeaBank</h3>
+    <div class="payment-box">
+      <img src="https://placehold.co/400x400/white/000?text=SeaBank+QR" alt="SeaBank">
+      <div class="payment-total">Rp ${sub.total.toLocaleString()}</div>
+      <div class="payment-note">Scan QR Code atau transfer ke rekening SeaBank</div>
+    </div>
+    <p style="font-size:.75rem;color:var(--text-soft);text-align:center;margin:8px 0;">
+      Setelah transfer, <b>screenshot bukti</b> dan kirim ke WhatsApp admin!
+    </p>
+    <div class="modal-actions" style="flex-direction:column;gap:8px;">
+      <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="kirimWA('SeaBank')"><img src="${ICONS.wa}" alt="">Konfirmasi & Kirim WA</button>
+      <button class="btn btn-outline" style="width:100%;justify-content:center;" onclick="pilihPembayaran()">Kembali</button>
+    </div>`;
+  m.style.display='flex';
+}
+
+function bayarBCA(){
+  const sub=calcSub();
+  const m=document.getElementById('modalOverlay');
+  document.getElementById('modalDialog').innerHTML=`
+    <h3><img src="${ICONS.bca}" alt="">Pembayaran Bank BCA</h3>
+    <div class="payment-box">
+      <img src="https://placehold.co/400x400/white/000?text=BCA+QR" alt="BCA">
+      <div class="payment-total">Rp ${sub.total.toLocaleString()}</div>
+      <div class="payment-note">Scan QR Code atau transfer ke rekening BCA</div>
+    </div>
+    <p style="font-size:.75rem;color:var(--text-soft);text-align:center;margin:8px 0;">
+      Setelah transfer, <b>screenshot bukti</b> dan kirim ke WhatsApp admin!
+    </p>
+    <div class="modal-actions" style="flex-direction:column;gap:8px;">
+      <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="kirimWA('Bank BCA')"><img src="${ICONS.wa}" alt="">Konfirmasi & Kirim WA</button>
+      <button class="btn btn-outline" style="width:100%;justify-content:center;" onclick="pilihPembayaran()">Kembali</button>
+    </div>`;
+  m.style.display='flex';
+}
+
+function bayarShopeePay(){
+  const sub=calcSub();
+  const m=document.getElementById('modalOverlay');
+  document.getElementById('modalDialog').innerHTML=`
+    <h3><img src="${ICONS.shopeepay}" alt="">Pembayaran ShopeePay</h3>
+    <div class="payment-box">
+      <img src="https://placehold.co/400x400/white/000?text=ShopeePay+QR" alt="ShopeePay">
+      <div class="payment-total">Rp ${sub.total.toLocaleString()}</div>
+      <div class="payment-note">Scan QR Code atau kirim ke ShopeePay kami</div>
+    </div>
+    <p style="font-size:.75rem;color:var(--text-soft);text-align:center;margin:8px 0;">
+      Setelah transfer, <b>screenshot bukti</b> dan kirim ke WhatsApp admin!
+    </p>
+    <div class="modal-actions" style="flex-direction:column;gap:8px;">
+      <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="kirimWA('ShopeePay')"><img src="${ICONS.wa}" alt="">Konfirmasi & Kirim WA</button>
+      <button class="btn btn-outline" style="width:100%;justify-content:center;" onclick="pilihPembayaran()">Kembali</button>
+    </div>`;
+  m.style.display='flex';
+}
+
+function kirimWA(metode){
+  const sub=calcSub();let msg=`SnackFlix TianTiwi - Room Cinema 1\n\nPesanan:\n`;
+  cart.forEach(i=>msg+=`- ${i.label} = Rp ${i.price.toLocaleString()}\n`);
+  msg+=`\nTOTAL: Rp ${sub.total.toLocaleString()}`;
+  msg+=`\nMetode Pembayaran: ${metode}`;
+  msg+=`\nRoom Cinema 1\n\nTerima kasih!`;
+  window.open(`https://wa.me/62 889-0518-5901?text=${encodeURIComponent(msg)}`,'_blank');
+  cart = [];
+  save();
+  updateFloatCart();
+  refreshSheetContent();
+  render();
+  closeModal();
+  alert('Keranjang telah direset. Terima kasih!');
+}
+
+function resetAll() {
+  cart = [];
+  save();
+  updateFloatCart();
+  if(typeof refreshSheetContent === 'function') refreshSheetContent();
+  render();
+}
+
+// FILM INTRODUCTION
+function openFilmSheet() {
+  document.getElementById('filmSheetOverlay').style.display = 'flex';
+}
+function closeFilmSheet() {
+  document.getElementById('filmSheetOverlay').style.display = 'none';
+}
+
+// RESET KETIKA BROWSER DI REFRESH
+window.addEventListener('beforeunload', function() {
+  resetAll();
+});
+
+// ==================== INIT ====================
+const nowPlayingBtn = document.getElementById('nowPlayingBtn');
+nowPlayingBtn.addEventListener('click', openFilmSheet);
+resetAll();
+</script>
+</body>
+</html>
